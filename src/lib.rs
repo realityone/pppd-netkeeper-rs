@@ -5,7 +5,6 @@ use std::ffi::CStr;
 use netkeeper::netkeeper::dialer::{NetkeeperDialer, Configuration};
 use netkeeper::common::dialer::Dialer;
 
-#[no_mangle]
 extern "C" {
     static mut user: [libc::c_schar; 256];
 }
