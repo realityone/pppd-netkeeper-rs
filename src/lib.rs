@@ -1,7 +1,7 @@
 extern crate libc;
 extern crate netkeeper;
 
-use std::ffi::{CStr, CString};
+use std::ffi::CStr;
 use netkeeper::netkeeper::dialer::{NetkeeperDialer, Configuration};
 use netkeeper::common::dialer::Dialer;
 
