@@ -2,45 +2,32 @@ extern crate libc;
 extern crate netkeeper;
 
 use std::ffi::{CStr, CString};
-use std::mem;
-
-use netkeeper::common::dialer::Dialer;
 use netkeeper::netkeeper::dialer::{NetkeeperDialer, Configuration};
-
-const MAXNAMELEN: usize = 256;
-const MAXSECRETLEN: usize = 256;
+use netkeeper::common::dialer::Dialer;
 
 #[no_mangle]
-#[allow(non_upper_case_globals)]
-pub static pppd_version: &'static [libc::c_uchar; 6] = b"2.4.4\x00";
-
-#[no_mangle]
-#[allow(non_upper_case_globals)]
-pub static mut user: [libc::c_char; MAXNAMELEN] = [0; MAXNAMELEN];
-
-#[no_mangle]
-#[allow(non_upper_case_globals)]
-pub static mut passwd: [libc::c_char; MAXSECRETLEN] = [0; MAXSECRETLEN];
-
-pub extern "C" fn check() -> libc::c_int {
-    1
+extern "C" {
+    static mut user: [libc::c_schar; 256];
 }
 
-pub extern "C" fn plugin_init(_: *const libc::c_void) {
+#[no_mangle]
+pub extern "C" fn plugin_init() {
     println!("Netkeeper Plugin Init");
-    let origin_user;
+
+    let origin;
     unsafe {
-        origin_user = CStr::from_ptr(&user as *const i8);
+        origin = CStr::from_ptr(&user as *const i8).to_string_lossy().into_owned();
     }
+    println!("Origin username is: {:?}", origin);
 
     let dialer = NetkeeperDialer::load_from_config(Configuration::Zhejiang);
-    let encrypted = dialer.encrypt_account("05802278989@HYXY.XY", None);
+    let encrypted = dialer.encrypt_account(&origin, None);
+
+    println!("Encrypted username is: {:?}", encrypted);
     unsafe {
-        let encrypted_user = CString::new(encrypted.clone()).unwrap();
-        let i8_ptr: &[i8] = mem::transmute(encrypted_user);
-        user[0..encrypted.len()].copy_from_slice(i8_ptr as &[i8]);
+        let encrypted_bytes = encrypted.as_bytes().iter().map(|c| *c as i8).collect::<Vec<i8>>();
+        user[0..encrypted.len()].copy_from_slice(&encrypted_bytes);
     }
-    println!("{:?}", origin_user);
 }
 
 #[cfg(test)]
