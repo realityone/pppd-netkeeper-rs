@@ -1,15 +1,15 @@
 [package]
 authors = ["realityone <realityone@me.com>"]
 name = "pppd-netkeeper"
-version = "0.1.0"
+version = "0.1.1"
 
 [dependencies]
-libc = "0.2.20"
+libc = "0.2.43"
 
 [dependencies.libnetkeeper]
 features = ["netkeeper"]
 git = "https://github.com/realityone/libnetkeeper.git"
-tag = "0.1.0"
+tag = "0.2.0"
 
 [lib]
 crate-type = ["dylib"]
